@@ -61,10 +61,10 @@ pipeline {
                 sh '''
                        oc project ${DEV_PROJECT}
                        oc new-app --name books nodejs:8~${APP_GIT_URL}  \
-                       -- build-env npm_config_registry=${NEXUS_SERVER} \
-                       -- context-dir ${APP_NAME}
+                       --build-env npm_config_registry=${NEXUS_SERVER} \
+                       --context-dir ${APP_NAME}
 
-                oc expose svc/${APP_NAME}
+                       oc expose svc/${APP_NAME}
                    '''
             }
         }
@@ -108,8 +108,9 @@ pipeline {
                 }
                 script{
                     openshift.withCluster(){
-                    openshift.tag("${DEV_PROJECT}/books:latest", "${STAGE_PROJECT}/books:stage")}
-}                
+                        openshift.tag("${DEV_PROJECT}/books:latest", "${STAGE_PROJECT}/books:stage")
+                    }
+                }                
             }
         }
 
@@ -127,6 +128,7 @@ pipeline {
                        oc project ${STAGE_PROJECT}
                        oc new-app --name books -i books:stage
                        oc expose svc/${APP_NAME}
+                   '''
             }
         }
 
@@ -142,8 +144,8 @@ pipeline {
                            def deployment = openshift.selector("dc", "${APP_NAME}").rollout()
                            openshift.selector("dc","${APP_NAME}").related('pods'.untilEach(1) {
                              return (it.object().status.phase == "Running")
-}
-}
+                           }
+                        }
                         echo "Deployment to Staging env is complete. Access the app at the URL http://${routeHost}."
                     }
                 }
